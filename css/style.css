@@ -1,0 +1,93 @@
+/* глобальний reset на початку файлу стилів */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    background-color: #ead7b0;
+    color: #333333;
+}
+
+header {
+    background-color: #931F1D;
+    padding: 24px;
+    text-align: center;
+    border-bottom: 4px solid #D35400;
+}
+
+header h1 {
+    margin: 0;
+    color: rgb(245, 223, 204);
+    font-size: 2.2rem;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+main { 
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    background-color: #B6C197;
+}
+
+section {
+    margin-bottom: 32px;
+    padding-bottom: 10px;
+    background-color: #D5DCBC;
+    border-radius: 20px;
+}
+
+h2 {
+    color: #2E7D32;
+}
+
+/* Картка згенерованого рецепта (велика) */
+#generate_recipe {
+    padding: 28px;
+    text-align: center;
+    border: 2px solid #E67E22;
+    border-radius: 12px;
+    background-color: #FFF3E0;
+}
+
+/* Картки історії (article) */
+#recipes_history article {
+    padding: 10px;
+    margin-bottom: 12px;
+    background-color: #e7e5e5;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+#recipes_history img {
+    padding: 10px;
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+#recipes_history h2 {
+    margin: 10px;
+    padding: 10px;
+    text-align: left;
+}
+
+#recipes_history h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+footer {
+    text-align: center;
+    padding: 16px;
+    font-size: 0.9rem;
+    color: #777777;
+    background-color: #dbe8d9;
+    margin-top: 40px;
+}

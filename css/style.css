@@ -3,20 +3,64 @@
     box-sizing: border-box;
 }
 
-body {
+/* Оголошення всіх кольорів проєкту */
+:root {
+    /* Текст */
+    --text-main: #333333;
+    --text-muted: #4a4949;
+    --text-light: rgb(245, 223, 204);
+
+    /* Фони */
+    --bg-page: #ead7b0;
+    --bg-main: #B6C197;
+    --bg-section: #D5DCBC;
+    --bg-card: #e7e5e5;
+    --bg-footer: #dbe8d9;
+    --bg-highlight: #FFF3E0;
+    --bg-main-btn: #b43403; /* Основний фон грайливої кнопки */
+
+    /* Акценти */
+    --accent-primary: #931F1D;
+    --accent-secondary: #E67E22;
+    --accent-dark-orange: #D35400;
+    --accent-green: #1e6822; /* #2E7D32; */ 
+
+    /* Типографіка: Шрифти */
+    --font-main: 'Caveat', cursive;
+    --font-heading: 'Yeseva One', serif;
+    --font-accent: 'Lobster', cursive;
+
+    /* Типографіка: Шкала розмірів */
+    --fs-sm: 1.20rem;      /* дрібний текст (футер) */
+    --fs-base: 1.30rem;      /* основний текст */
+    --fs-h3: 1.50rem;     /* підзаголовки карток */
+    --fs-h2: 1.75rem;     /* заголовки секцій */
+    --fs-h1: 3.2rem;      /* головний заголовок сайту */
+    
+    --line-height-base: 1.6; 
+}
+
+body {   
     margin: 0;
-    font-family: system-ui, sans-serif;
-    font-size: 1rem;
-    line-height: 1.5;
-    background-color: #ead7b0;
-    color: #333333;
+    font-family: var(--font-main);
+    font-size: var(--fs-base);
+    line-height: var(--line-height-base);
+    color: var(--text-main);
+
+    background-color: var(--bg-page); 
+    background-image: linear-gradient(rgba(112, 108, 98, 0.625), rgba(116, 110, 99, 0.57)), url('../assets/img/background.jpg');
+    
+    /* Налаштування картинки */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
 }
 
 header {
-    background-color: #931F1D;
+    background-color: var(--accent-primary);
     padding: 24px;
     text-align: center;
-    border-bottom: 4px solid #D35400;
+    border-bottom: 4px solid var(--accent-dark-orange);
 
     /* FlexBox */
     display: flex;
@@ -29,27 +73,29 @@ header {
 header h1 {
     margin: 0;
     text-align: center;
-    color: rgb(245, 223, 204);
-    font-size: 2.2rem;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    color: var(--text-light);
+    font-family: var(--font-heading);
+    font-size: var(--fs-h1);
 }
 
 main { 
     max-width: 1000px;
     margin: 0 auto;
     padding: 24px 16px;
-    background-color: #B6C197;
+    background-color: var(--bg-main);
 }
 
 section {
     margin-bottom: 32px;
     padding-bottom: 10px;
-    background-color: #D5DCBC;
+    background-color: var(--bg-section);
     border-radius: 20px;
 }
 
 h2 {
-    color: #2E7D32;
+    color: var(--accent-green);
+    font-family: var(--font-heading);
+    font-size: var(--fs-h2);
 }
 
 img {
@@ -63,18 +109,52 @@ img {
     gap: 16px;
 }
 
-/* Картка згенерованого рецепта (велика) */
 #generate_recipe {
-    padding: 28px;
     text-align: center;
-    border: 2px solid #E67E22;
-    border-radius: 12px;
-    background-color: #FFF3E0;
+    padding: 40px 0;
 }
+
+/* •	Ігровий вигляд: Кнопку зроблено навмисно гігантською, з масивними відступами, повністю заокругленими краями та емодзі грального кубика (🎲). Вона нагадує пульт від аркадного автомата, що одразу асоціюється з розвагами.
+•	Ефект "підстрибування" (:hover): При наведенні курсора кнопка плавно збільшується, трохи підіймається вгору, а її тінь розширюється. Це привертає увагу і ніби запрошує до дії.
+•	Фізичне натискання (:active): Під час кліку вона візуально зменшується і "протискається" всередину екрана. Це створює приємне тактильне відчуття реального кліку, через що її хочеться натискати знову і знову.
+*/
+
+#main_btn {
+    background-color: var(--bg-main-btn);
+    color: var(--bg-card); 
+    font-family: var(--font-accent);
+    font-size: 2.1rem; 
+    padding: 20px 30px;
+    width: 100%; 
+    max-width: 320px;
+    font-weight: bold;
+    border: none;
+    border-radius: 50px; 
+    cursor: pointer;
+    box-shadow: 0 8px 15px var(--accent-secondary); 
+    transition: transform 0.2s, box-shadow 0.2s; 
+}
+
+#main_btn:hover {
+    transform: scale(1.05) translateY(-3px);
+    box-shadow: 0 12px 20px var(--accent-secondary);
+}
+
+#main_btn:active {
+    transform: scale(0.95);
+}
+
 
 @media (min-width: 600px) {
     .cards {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    #main_btn {
+        font-size: 2.9rem;
+        padding: 40px 50px;
+        max-width: none;
+        width: auto;
     }
 }
 
@@ -88,13 +168,18 @@ img {
     .cards {
         grid-template-columns: repeat(3, 1fr);
     }
+
+    #main_btn {
+        font-size: 3.8rem;
+        padding: 40px 60px;
+    }
 }
 
 /* Картки історії (article) */
 #recipes_history article {
     padding: 10px;
     margin-bottom: 12px;
-    background-color: #e7e5e5;
+    background-color: var(--bg-card);
     border-radius: 20px;
 
     display: flex;
@@ -118,14 +203,17 @@ img {
 
 #recipes_history h3 {
     margin: 0;
-    font-size: 1.1rem;
     text-align: center;
+    font-size: var(--fs-h3);
+    font-family: var(--font-main); 
+    font-weight: 600; /* Робимо рукописний текст чіткішим */
 }
 
 footer {
-    text-align: center;
+     text-align: center;
     padding: 16px;
-    font-size: 0.9rem;
-    color: #777777;
-    background-color: #dbe8d9;
+    font-family: var(--font-main); 
+    font-size: var(--fs-sm);       
+    color: var(--text-muted);
+    background-color: var(--bg-footer);
 }

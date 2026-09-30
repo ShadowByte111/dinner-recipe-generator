@@ -17,6 +17,7 @@
     --bg-card: #e7e5e5;
     --bg-footer: #dbe8d9;
     --bg-highlight: #FFF3E0;
+    --bg-vegetarian:  #e8f5e9;
     --bg-main-btn: #b43403; /* Основний фон грайливої кнопки */
 
     /* Акценти */
@@ -34,7 +35,7 @@
     --fs-sm: 1.20rem;      /* дрібний текст (футер) */
     --fs-base: 1.30rem;      /* основний текст */
     --fs-h3: 1.50rem;     /* підзаголовки карток */
-    --fs-h2: 1.75rem;     /* заголовки секцій */
+    --fs-h2: 2.0rem;     /* заголовки секцій */
     --fs-h1: 3.2rem;      /* головний заголовок сайту */
     
     --line-height-base: 1.6; 
@@ -113,6 +114,65 @@ img {
     text-align: center;
     padding: 40px 0;
 }
+
+/* Стилізація контейнера для згенерованого рецепта */
+#recipe-result {
+    margin-bottom: 30px;
+}
+
+/* Стилізація самої згенерованої картки */
+#recipe-result article {
+    background-color: var(--bg-card);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+    max-width: 700px;
+    margin: 0 auto; 
+    text-align: center;
+}
+
+#recipe-result img {
+    border-radius: 10px;
+    max-height: 250px;
+    width: 100%;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+#recipe-result h3 {
+    font-size: var(--fs-h2);
+    margin: 0 0 10px 0;
+    color: var(--accent-primary);
+}
+
+#recipe-result p {
+    font-size: var(--fs-h3);
+    margin: 0;
+    font-weight: bold;
+    color: var(--text-muted);
+}
+
+/* Стиль для вегетаріанських страв (Крок 6) */
+#recipe-result article.vegetarian {
+    border: 4px solid var(--accent-green);
+    background-color: var(--bg-vegetarian);
+}
+
+#recipe-result article.vegetarian h3::after {
+    content: " 🌱";
+}
+
+/* Вирівнюємо лічильник історії */
+#recipes_history p {
+    text-align: center;
+    font-weight: bold;
+    font-size: var(--fs-h2);
+    margin-bottom: 20px;
+}
+#history-count {
+    color: var(--accent-primary);
+}
+
 
 /* •	Ігровий вигляд: Кнопку зроблено навмисно гігантською, з масивними відступами, повністю заокругленими краями та емодзі грального кубика (🎲). Вона нагадує пульт від аркадного автомата, що одразу асоціюється з розвагами.
 •	Ефект "підстрибування" (:hover): При наведенні курсора кнопка плавно збільшується, трохи підіймається вгору, а її тінь розширюється. Це привертає увагу і ніби запрошує до дії.

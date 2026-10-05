@@ -18,9 +18,31 @@
 
     <main>
         <section id="generate_recipe">
-            <div id="recipe-result">
-            </div>
-            <button id="main_btn">Згенерувати рецепт 🎲</button>
+            <div id="recipe-result"></div>
+
+            <form id="recipe-filter-form">
+                <button type="submit" id="main_btn">Згенерувати рецепт 🎲</button>
+
+                <div id="form-part">
+                    <div id="filter-row">
+                        <label for="dishType">Тип страви:</label>
+                        <select name="dishType" id="dishType" required>
+                            <option value="" disabled selected>Оберіть тип...</option>
+                            <option value="main">Основна страва</option>
+                            <option value="snack">Закуска</option>
+                        </select>
+                    </div>
+
+                    <div id="checkbox-row">
+                        <input type="checkbox" id="vegOnly" name="vegOnly">
+                        <label for="vegOnly">Тільки вегетаріанські страви</label>
+                    </div>
+                </div>
+
+            </form>
+
+            <!-- <div id="recipe-result"></div> -->
+            <!-- <button id="main_btn">Згенерувати рецепт 🎲</button> -->
         </section>
 
         <section id="recipes_history">

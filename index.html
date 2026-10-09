@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Lobster&family=Yeseva+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="shortcut icon" href="#">
     <script src="js/app.js" defer></script>
@@ -19,17 +20,20 @@
     <main>
         <section id="generate_recipe">
             <div id="recipe-result"></div>
+            <p id="recipe-status" role="status" aria-live="polite"></p>
 
             <form id="recipe-filter-form">
                 <button type="submit" id="main_btn">Згенерувати рецепт 🎲</button>
 
                 <div id="form-part">
                     <div id="filter-row">
-                        <label for="dishType">Тип страви:</label>
-                        <select name="dishType" id="dishType" required>
-                            <option value="" disabled selected>Оберіть тип...</option>
-                            <option value="main">Основна страва</option>
-                            <option value="snack">Закуска</option>
+                        <label for="dishArea">Кухня світу:</label>
+                        <select name="dishArea" id="dishArea">
+                            <option value="" selected>Будь-яка (Випадкова)</option>
+                            <option value="Italian">Італійська</option>
+                            <option value="France">Французька</option>
+                            <option value="Mexican">Мексиканська</option>
+                            <option value="Chinese">Китайська</option>
                         </select>
                     </div>
 

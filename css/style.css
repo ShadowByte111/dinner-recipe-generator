@@ -31,6 +31,7 @@
     --font-main: 'Caveat', cursive;
     --font-heading: 'Yeseva One', serif;
     --font-accent: 'Lobster', cursive;
+    --font-pure-text: 'Lora', serif;
 
     /* Типографіка: Шкала розмірів */
     --fs-sm: 1.20rem;      /* дрібний текст (футер) */
@@ -154,13 +155,58 @@ img {
 }
 
 /* Стиль для вегетаріанських страв (Крок 6) */
-#recipe-result article.vegetarian {
+/* #recipe-result article.vegetarian {
     border: 4px solid var(--accent-green);
     background-color: var(--bg-vegetarian);
 }
 
 #recipe-result article.vegetarian h3::after {
     content: " 🌱";
+} */
+
+/* Статус завантаження та повідомлення про помилки*/
+#recipe-status {
+    max-width: 700px;
+    margin: 16px auto;
+    padding: 0 12px;
+    text-align: center;
+    font-weight: bold;
+}
+
+#recipe-status.status-loading {
+    color: var(--accent-green);
+}
+
+#recipe-status.status-error {
+    color: var(--accent-primary);
+}
+
+#main_btn:disabled {
+    opacity: 0.65;
+    cursor: wait;
+    transform: none;
+}
+
+#recipe-result h4 {
+    margin: 20px 0 6px;
+    color: var(--accent-green);
+    font-family: var(--font-heading);
+}
+
+#recipe-result .meal-category {
+    margin: 0 0 12px;
+    font-size: var(--fs-base);
+    font-weight: normal;
+}
+
+#recipe-result .meal-instructions {
+    text-align: left;
+    white-space: pre-line;
+    font-size: var(--fs-base);
+    line-height: 1.5;
+    font-weight: lighter;
+    font-family: var(--font-pure-text);
+    margin: 10px 20px 30px 20px;
 }
 
 
@@ -215,7 +261,7 @@ img {
 
 
 /* Випадаючий список */
-#dishType {
+#dishArea {
     width: 100%;
     padding: 12px 16px;
 

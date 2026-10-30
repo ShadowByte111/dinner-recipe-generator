@@ -133,6 +133,14 @@ img {
     text-align: center;
 }
 
+/* Кнопка повторної генерації всередині картки рецепта */
+#recipe-result article #main_btn {
+    font-size: 3.4rem;
+    padding: 40px 50px;
+    width: 100%;
+    max-width: 800px;
+}
+
 #recipe-result img {
     border-radius: 10px;
     max-height: 250px;

@@ -10,7 +10,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="shortcut icon" href="#">
-    <script src="js/app.js" defer></script>
+    <!-- <script src="js/app.js" defer></script> -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel" src="js/app.js"></script>
 </head>
 <body>
     <header>
@@ -19,7 +26,7 @@
 
     <main>
         <section id="generate_recipe">
-            <div id="recipe-result"></div>
+            <!-- <div id="recipe-result"></div>
             <p id="recipe-status" role="status" aria-live="polite"></p>
 
             <form id="recipe-filter-form">
@@ -45,8 +52,7 @@
 
             </form>
 
-            <!-- <div id="recipe-result"></div> -->
-            <!-- <button id="main_btn">Згенерувати рецепт 🎲</button> -->
+             -->
         </section>
 
         <section id="recipes_history">

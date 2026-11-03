@@ -17,7 +17,7 @@
     --bg-card: #e7e5e5;
     --bg-footer: #dbe8d9;
     --bg-highlight: #FFF3E0;
-    --bg-vegetarian:  #e8f5e9;
+    --bg-vegetarian:  #edf6ee;
     --bg-main-btn: #b43403; /* Основний фон грайливої кнопки */
     --bg-form: rgb(246, 255, 244);
 
@@ -148,6 +148,18 @@ img {
     object-fit: cover;
     margin-bottom: 15px;
 }
+
+#recipe-result #fav-btn-img {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    cursor: pointer;
+    background-color: white;
+    border-radius: 10%;
+    padding: 5px;
+}
+
 
 #recipe-result h3 {
     font-size: var(--fs-h2);
@@ -288,7 +300,24 @@ img {
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+#switch-fav-history-btns {
+    text-align: center;
+    margin: 20px 0;
+}
 
+#history-btn, #favourite-btn {
+    margin-right: 10px; 
+    padding: 10px 20px;
+    background-color: gray; /* default inactive color */
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    border: none;
+}
+
+#history-btn.active, #favourite-btn.active {
+    background-color: var(--accent-primary); /* active color */
+}
 
 /* Вирівнюємо лічильник історії */
 #recipes_history p {
@@ -374,10 +403,10 @@ img {
 }
 
 /* Картки історії (article) */
-#recipes_history article {
+#recipes_history article, #recipes_favorites article {
     padding: 10px;
     margin-bottom: 12px;
-    background-color: var(--bg-card);
+    background-color: var(--bg-vegetarian);
     border-radius: 20px;
 
     display: flex;
@@ -385,7 +414,12 @@ img {
     justify-content: space-between;
 }
 
-#recipes_history img {
+#recipes_favorites article {
+    background-color: var(--bg-card);
+    border: 2px solid #e6a8a6;
+}
+
+#recipes_history img, #recipes_favorites img {
     padding: 10px;
     object-fit: cover;
     border-radius: 6px;
@@ -393,19 +427,48 @@ img {
     height: 200px;
 }
 
-#recipes_history h2 {
+#recipes_history h2, #recipes_favorites h2 {
     margin: 10px;
     padding: 10px;
     text-align: left;
 }
 
-#recipes_history h3 {
+#recipes_favorites h2 {
+    color: var(--bg-main-btn);
+}
+
+#recipes_history h3, #recipes_favorites h3  {
     margin: 0;
     text-align: center;
     font-size: var(--fs-h3);
     font-family: var(--font-main); 
     font-weight: 600; /* Робимо рукописний текст чіткішим */
 }
+
+
+
+/* Стилізація кнопки "Видалити ❌" всередині улюбленої картки */
+#recipes_favorites button {
+    align-self: center;
+    width: 50%;
+    padding: 6px 16px;
+    background-color: white;
+    color: var(--accent-primary);
+    border: 1.5px solid var(--accent-primary);
+    border-radius: 12px;
+    font-family: var(--font-main);
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+#recipes_favorites button:hover {
+    background-color: var(--accent-primary);
+    color: white;
+}
+
+
 
 footer {
      text-align: center;

@@ -99,13 +99,122 @@ function prepareRecipe(meal){
 }
 
 
-function RandomRecipeCard({recipe, onRegenerate, isLoading}){
+const STORAGE_KEY = 'favoriteRecipes';
+
+// Збереження масиву улюблених рецептів у localStorage
+function saveToLocalStorage(items) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+}
+
+// Завантаження масиву з localStorage із захистом від пошкоджених даних
+function loadFromLocalStorage() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch (error) {
+        console.error('Пошкоджені дані в localStorage:', error);
+        return [];
+    }
+}
+
+
+const HISTORY_STORAGE_KEY = 'historyRecipes';
+
+function saveHistoryToLocalStorage(items) {
+    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(items));
+}
+
+function loadHistoryFromLocalStorage() {
+    try {
+        const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch (error) {
+        console.error('Пошкоджені дані історії в localStorage:', error);
+        return [];
+    }
+}
+
+
+
+
+const DB_NAME = 'DinnerRecipesDB';
+const DB_VERSION = 2;
+const STORE_NAME = 'favorites';
+const MIGRATION_FLAG = 'favoritesMigrated';
+
+// Відкриття бази даних і створення сховища 'favorites'
+function openDB() {
+    return new Promise((resolve, reject) => {
+        if (!window.indexedDB) {
+            reject(new Error('IndexedDB не підтримується у цьому браузері'));
+            return;
+        }
+
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+            }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// Додавання або оновлення запису в IndexedDB (put)
+async function saveFavoriteToDB(item) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).put(item);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+    });
+}
+
+// Видалення запису з IndexedDB за id (delete)
+async function deleteFavoriteFromDB(id) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).delete(id);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+    });
+}
+
+// Отримання всіх улюблених рецептів з IndexedDB (getAll)
+async function getAllFavoritesFromDB() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const request = tx.objectStore(STORE_NAME).getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+
+
+
+
+function RandomRecipeCard({recipe, onRegenerate, isLoading, isFavorite, onToggleFavorite}){
     return (
         <article className={recipe.isVegetarian ? 'vegetarian' : ''}>
-            <img
-                src={recipe.image}
-                alt={`${recipe.name} фото`}
-            />
+
+            {/* Обгортка для фото і сердечка (щоб позиціонувати сердечко поверх фото через CSS) */}
+            <div style={{ position: 'relative' }}>
+                <img src={recipe.image} alt={`${recipe.name} фото`} />
+                <img 
+                    id="fav-btn-img"
+                    src={isFavorite ? 'assets/img/heart_icon_filled.png' : 'assets/img/heart_icon_unfilled.png'} 
+                    alt="Улюблене"
+                    onClick={onToggleFavorite}
+                />
+            </div>
 
             <h3>{recipe.name}</h3>
 
@@ -140,6 +249,8 @@ function RandomRecipeCard({recipe, onRegenerate, isLoading}){
     );
 }
 
+
+
 // БАТЬКІВСЬКИЙ КОМПОНЕНТ УСЬОГО ГЕНЕРАТОРА.
 function App() {
 
@@ -154,6 +265,72 @@ function App() {
     const [statusClass, setStatusClass] = React.useState('');
 
     const [count, setCount] = React.useState(0);
+
+    // НОВІ СТАНИ:
+    const [favorites, setFavorites] = React.useState([]); // Масив улюблених страв
+
+    const [historyList, setHistoryList] = React.useState(() => loadHistoryFromLocalStorage());
+
+    const [activeTab, setActiveTab] = React.useState('history'); // Яку секцію показувати знизу: 'history' або 'favorites'
+
+    // Одноразова міграція з localStorage в IndexedDB при старті
+    React.useEffect(() => {
+        async function initFavoritesDB() {
+            try {
+                let dbItems = await getAllFavoritesFromDB();
+                const isMigrated = localStorage.getItem(MIGRATION_FLAG);
+
+                // Якщо сховище порожнє і міграція ще не проводилась — переносимо з localStorage
+                if (dbItems.length === 0 && !isMigrated) {
+                    const localItems = loadFromLocalStorage();
+                    for (const item of localItems) {
+                        await saveFavoriteToDB({
+                            id: item.id,
+                            name: item.name,
+                            image: item.image
+                        });
+                    }
+                    localStorage.setItem(MIGRATION_FLAG, 'true');
+                    dbItems = await getAllFavoritesFromDB();
+                }
+
+                setFavorites(dbItems);
+            } catch (error) {
+                console.error('Помилка роботи з IndexedDB:', error);
+                setStatus('Локальна база даних IndexedDB недоступна. Використовується резервне сховище.');
+                setStatusClass('status-error');
+                setFavorites(loadFromLocalStorage());
+            }
+        }
+
+        initFavoritesDB();
+    }, []);
+
+    // Функція для кліку по сердечку
+    async function toggleFavorite(recipe) {
+        const exists = favorites.some(fav => fav.id === recipe.id);
+
+        try {
+            if (exists) {
+                await deleteFavoriteFromDB(recipe.id);
+            } else {
+                const newFavorite = {
+                    id: recipe.id,
+                    name: recipe.name,
+                    image: recipe.image
+                };
+                await saveFavoriteToDB(newFavorite);
+            }
+
+            // Оновлюємо список напряму з IndexedDB
+            const updatedFavorites = await getAllFavoritesFromDB();
+            setFavorites(updatedFavorites);
+            saveToLocalStorage(updatedFavorites); // синхронізуємо localStorage
+
+        } catch (error) {
+            console.error('Не вдалося оновити улюблені в IndexedDB:', error);
+        }
+    }
 
     // Лічильник у старому блоці історії розташований поза React.
     React.useEffect(() => {
@@ -182,13 +359,26 @@ function App() {
                 isVegOnly
             );
 
-            // Зберігаємо новий рецепт у стані React.
-            setRecipes([prepareRecipe(meal)]);
+            const prepared = prepareRecipe(meal);
+
+            setRecipes([prepared]);
 
             setCount(previousCount => previousCount + 1);
 
             setStatus('');
             setStatusClass('');
+
+            // Додаємо в історію (максимум 15 останніх страв, без дублікатів підряд)
+            setHistoryList(prevHistory => {
+                const filtered = prevHistory.filter(item => item.id !== prepared.id);
+                const updatedHistory = [
+                    { id: prepared.id, name: prepared.name, image: prepared.image },
+                    ...filtered
+                ].slice(0, 15);
+                
+                saveHistoryToLocalStorage(updatedHistory);
+                return updatedHistory;
+            });
 
         } catch (error) {
             console.error(error);
@@ -219,106 +409,160 @@ function App() {
 
     return (
         <>
-            <div id="recipe-result">
+            <section id="generate_recipe">
+                <div id="recipe-result">
+                    {recipes.map(recipe => (
+                        <RandomRecipeCard
+                            key={recipe.id}
+                            recipe={recipe}
+                            onRegenerate={regenerate}
+                            isLoading={isLoading}
 
-                {recipes.map(recipe => (
-                    <RandomRecipeCard
-                        key={recipe.id}
-                        recipe={recipe}
-                        onRegenerate={regenerate}
-                        isLoading={isLoading}
-                    />
-                ))}
-
-            </div>
-
-            <p
-                id="recipe-status"
-                className={statusClass}
-                role="status"
-                aria-live="polite"
-            >
-                {status}
-            </p>
-
-            <form
-                id="recipe-filter-form"
-                onSubmit={regenerate}
-            >
-                {recipes.length === 0 && (
-                    <button
-                        type="submit"
-                        id="main_btn"
-                        disabled={isLoading}
-                    >
-                        Згенерувати рецепт 🎲
-                    </button>
-                )}
-
-                <div id="form-part">
-                    <div id="filter-row">
-                        <label htmlFor="dishArea">
-                            Кухня світу:
-                        </label>
-
-                        <select
-                            name="dishArea"
-                            id="dishArea"
-                            value={selectedArea}
-                            onChange={event =>
-                                setSelectedArea(event.target.value)
-                            }
-                        >
-                            <option value="">
-                                Будь-яка (Випадкова)
-                            </option>
-
-                            <option value="Italian">
-                                Італійська
-                            </option>
-
-                            <option value="France">
-                                Французька
-                            </option>
-
-                            <option value="Mexican">
-                                Мексиканська
-                            </option>
-
-                            <option value="Chinese">
-                                Китайська
-                            </option>
-                        </select>
-                    </div>
-
-                    <div id="checkbox-row">
-                        <input
-                            type="checkbox"
-                            id="vegOnly"
-                            name="vegOnly"
-                            checked={isVegOnly}
-                            onChange={event =>
-                                setIsVegOnly(event.target.checked)
-                            }
+                            // Перевіряємо, чи є поточний рецепт в масиві улюблених
+                            isFavorite={favorites.some(fav => fav.id === recipe.id)}
+                            onToggleFavorite={() => toggleFavorite(recipe)}
                         />
-
-                        <label htmlFor="vegOnly">
-                            Тільки вегетаріанські страви
-                        </label>
-                    </div>
+                    ))}
 
                 </div>
-            </form>
+
+                <p id="recipe-status" className={statusClass} role="status" aria-live="polite">
+                    {status}
+                </p>
+
+                <form id="recipe-filter-form" onSubmit={regenerate}>
+                    {recipes.length === 0 && (
+                        <button type="submit" id="main_btn" disabled={isLoading}>
+                            Згенерувати рецепт 🎲
+                        </button>
+                    )}
+
+                    <div id="form-part">
+                        <div id="filter-row">
+                            <label htmlFor="dishArea">
+                                Кухня світу:
+                            </label>
+
+                            <select
+                                name="dishArea"
+                                id="dishArea"
+                                value={selectedArea}
+                                onChange={event =>
+                                    setSelectedArea(event.target.value)
+                                }
+                            >
+                                <option value="">
+                                    Будь-яка (Випадкова)
+                                </option>
+
+                                <option value="Italian">
+                                    Італійська
+                                </option>
+
+                                <option value="France">
+                                    Французька
+                                </option>
+
+                                <option value="Mexican">
+                                    Мексиканська
+                                </option>
+
+                                <option value="Chinese">
+                                    Китайська
+                                </option>
+                            </select>
+                        </div>
+
+                        <div id="checkbox-row">
+                            <input
+                                type="checkbox"
+                                id="vegOnly"
+                                name="vegOnly"
+                                checked={isVegOnly}
+                                onChange={event =>
+                                    setIsVegOnly(event.target.checked)
+                                }
+                            />
+
+                            <label htmlFor="vegOnly">
+                                Тільки вегетаріанські страви
+                            </label>
+                        </div>
+
+                    </div>
+                </form>
+            </section>
+
+            {/* НОВА ЧАСТИНА: Кнопки перемикання вкладок */}
+            <div id="switch-fav-history-btns">
+                <button 
+                    id="history-btn"
+                    className={activeTab === 'history' ? 'active' : ''}
+                    onClick={() => setActiveTab('history')}
+                >
+                    Історія
+                </button>
+                <button 
+                    id="favourite-btn"
+                    className={activeTab === 'favorites' ? 'active' : ''}
+                    onClick={() => setActiveTab('favorites')}
+                >
+                    Улюблені ({favorites.length})
+                </button>
+            </div>
+
+            {/* Динамічна нижня секція */}
+            {activeTab === 'history' ? (
+                <section id="recipes_history">
+                    <h2>Історія згенерованих рецептів</h2>
+                    <p>Згенеровано за сеанс: <span>{count}</span></p>
+
+                    {historyList.length === 0 ? (
+                        <p style={{ textAlign: 'center' }}>Історія порожня. Згенеруйте перший рецепт!</p>
+                    ) : (
+                        <div className="cards">
+                            {historyList.map(item => (
+                                <article key={item.id}>
+                                    <img src={item.image} alt={`${item.name} фото`} />
+                                    <h3>{item.name}</h3>
+                                </article>
+                            ))}
+                        </div>
+                    )}
+
+                </section>
+            ) : (
+                <section id="recipes_favorites">
+                    <h2>Улюблені страви💕</h2>
+                    {favorites.length === 0 ? (
+                        <p style={{textAlign: 'center'}}>Ви ще не додали жодної страви в улюблені.</p>
+                    ) : (
+                        <div className="cards">
+                            {favorites.map(fav => (
+                                <article key={fav.id}>
+                                    <img src={fav.image} alt={`${fav.name} фото`} />
+                                    <h3>{fav.name}</h3>
+                                    {/* Кнопка швидкого видалення з улюблених */}
+                                    <button onClick={() => toggleFavorite(fav)}>Видалити ❌</button>
+                                </article>
+                            ))}
+                        </div>
+                    )}
+                </section>
+            )}
         </>
     );
 }
 
 
+ReactDOM.createRoot(
+    document.getElementById('root')
+).render(<App />);
 
 // Підключаємо React до секції генератора в HTML.
-ReactDOM.createRoot(
-    document.getElementById('generate_recipe')
-).render(<App />);
+// ReactDOM.createRoot(
+//     document.getElementById('generate_recipe')
+// ).render(<App />);
 
 
 

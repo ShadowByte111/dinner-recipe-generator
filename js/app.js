@@ -354,6 +354,8 @@ function App() {
         setStatusClass('status-loading');
 
         try {
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
             const meal = await getRecipe(
                 selectedArea,
                 isVegOnly
@@ -426,9 +428,11 @@ function App() {
 
                 </div>
 
-                <p id="recipe-status" className={statusClass} role="status" aria-live="polite">
+                {/* <p id="recipe-status" className={statusClass} role="status" aria-live="polite">
                     {status}
-                </p>
+                </p> */}
+
+                {isLoading && <PanLoader />}
 
                 <form id="recipe-filter-form" onSubmit={regenerate}>
                     {recipes.length === 0 && (
@@ -555,9 +559,187 @@ function App() {
 }
 
 
+
+function PanLoader() {
+    const canvasRef = React.useRef(null);
+
+    React.useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const frying_pan = canvas.getContext('2d');
+        let animationId;
+        let t = 0;
+
+        function drawFrame() {
+            // Очищення полотна перед кожним кадром
+            frying_pan.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Параметри анімації
+            const tilt = Math.sin(t * 7) * 0.08;          // легке погойдування
+            const bounce = Math.abs(Math.sin(t * 7)) * 6;  // підстрибування яєчні
+
+            frying_pan.save();
+
+            // Переносимо центр обертання точно в центр вашої сковорідки (100, 90)
+            frying_pan.translate(100, 90);
+            frying_pan.rotate(tilt);
+            frying_pan.translate(-100, -90);
+
+            // Ручка сковорідки
+            frying_pan.save();
+            frying_pan.fillStyle = '#566';
+            frying_pan.rotate(-250 / 180);
+            frying_pan.fillRect(-83, 155, 20, 95);
+            frying_pan.restore();
+
+
+            // ================= СКОВОРІДКА =================
+            frying_pan.fillStyle = '#2d2d32';
+            frying_pan.beginPath();
+            frying_pan.arc(100, 90, 51, 0, Math.PI * 2);
+            frying_pan.fill();
+
+            frying_pan.fillStyle = '#474750';
+            frying_pan.beginPath();
+            frying_pan.arc(100, 90, 46, 0, Math.PI * 2);
+            frying_pan.fill();
+
+            frying_pan.fillStyle = '#2d2d32';
+            frying_pan.beginPath();
+            frying_pan.arc(100, 90, 46, 0, Math.PI * 2);
+            frying_pan.stroke();
+
+
+            // ================= ЯЄЧНЯ (З ЕФЕКТОМ ПІДСТРИБУВАННЯ) =================
+            frying_pan.save();
+            // Підстрибування вгору-вниз під час готування
+            frying_pan.translate(0, -bounce);
+            frying_pan.rotate(-250 / 180);
+
+            frying_pan.fillStyle = '#ffffff';
+            frying_pan.beginPath();
+            frying_pan.arc(-100, 110, 10, 0, Math.PI * 2);
+            frying_pan.fill();
+
+            frying_pan.fillStyle = '#ffffee';
+            frying_pan.beginPath();
+            frying_pan.arc(-80, 130, 20, 0, Math.PI * 2);
+            frying_pan.fill();
+
+            frying_pan.fillStyle = '#ebebe8';
+            frying_pan.beginPath();
+            frying_pan.arc(-60, 110, 30, 0, Math.PI * 2);
+            frying_pan.fill();
+
+            frying_pan.fillStyle = '#ffbb00';
+            frying_pan.beginPath();
+            frying_pan.arc(-60, 113, 13, 0, Math.PI * 2);
+            frying_pan.fill();
+
+            frying_pan.restore(); // кінець анімації яєчні
+            frying_pan.restore(); // кінець анімації сковорідки
+
+            t += 0.04;
+            animationId = requestAnimationFrame(drawFrame);
+        }
+
+        drawFrame();
+
+        // Коректна зупинка циклу при завершенні завантаження
+        return () => cancelAnimationFrame(animationId);
+    }, []);
+
+    return (
+        <div style={{ textAlign: 'center', margin: '15px auto' }}>
+            <canvas ref={canvasRef} width="260" height="180" />
+            <p style={{
+                fontFamily: 'var(--font-heading)',
+                fontSize: '1.4rem',
+                color: 'var(--accent-primary)',
+                margin: '4px 0 0 0'
+            }}>
+                Смажимо ідею для вечері...
+            </p>
+        </div>
+    );
+}
+
+
 ReactDOM.createRoot(
     document.getElementById('root')
 ).render(<App />);
+
+
+
+
+// // сковородка з яєчнею
+// const canvas_drawing = document.getElementById('frying_pan_drawing');
+// const frying_pan = canvas_drawing.getContext('2d');
+
+// frying_pan.fillStyle = '#2d2d32';
+// frying_pan.beginPath();
+// frying_pan.arc(100, 90, 51, 0, 360);
+// frying_pan.fill();
+
+// frying_pan.fillStyle = '#474750';
+// frying_pan.beginPath();
+// frying_pan.arc(100, 90, 46, 0, 360);
+// frying_pan.fill();
+
+// frying_pan.fillStyle = '#2d2d32';
+// frying_pan.beginPath();
+// frying_pan.arc(100, 90, 46, 0, 360);
+// frying_pan.stroke();
+
+// frying_pan.fillStyle = '#2d2d32';
+// frying_pan.beginPath();
+// frying_pan.arc(100, 90, 51, 0, 360);
+// frying_pan.stroke();
+
+// frying_pan.fillStyle = '#566';
+// frying_pan.rotate(-250 / 180);
+// frying_pan.fillRect(-83, 165, 20, 85);
+
+// frying_pan.fillStyle = '#e9e9eb';
+// frying_pan.beginPath();
+// frying_pan.arc(-100, 110, 10, 0, 360);
+// frying_pan.fill();
+
+// frying_pan.fillStyle = '#e9e9ee';
+// frying_pan.beginPath();
+// frying_pan.arc(-80, 130, 20, 0, 360);
+// frying_pan.fill();
+
+// frying_pan.fillStyle = '#c5c5cd';
+// frying_pan.beginPath();
+// frying_pan.arc(-60, 110, 30, 0, 360);
+// frying_pan.fill();
+
+// frying_pan.fillStyle = '#ffbb00';
+// frying_pan.beginPath();
+// frying_pan.arc(-60, 113, 13, 0, 360);
+// frying_pan.fill();
+
+
+
+
+
+
+
+
+// frying_pan.fillStyle = '#474750';
+// frying_pan.beginPath();
+// frying_pan.arc(100, 90, 50, 0, 360);
+// frying_pan.fill();
+
+// frying_pan.fillStyle = '#2d2d32';
+// frying_pan.beginPath();
+// frying_pan.arc(100, 90, 46, 0, 360);
+// frying_pan.stroke();
+
+
+
+
 
 // Підключаємо React до секції генератора в HTML.
 // ReactDOM.createRoot(
@@ -565,6 +747,97 @@ ReactDOM.createRoot(
 // ).render(<App />);
 
 
+// function PanLoader1() {
+//     const canvasRef = React.useRef(null);
+
+//     React.useEffect(() => {
+//         const canvas = canvasRef.current;
+//         if (!canvas) return;
+//         const ctx = canvas.getContext('2d');
+//         let animationId;
+//         let t = 0;
+
+//         function drawFrame() {
+//             // Очищення полотна[cite: 3]
+//             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+//             ctx.save();
+//             // Центр полотна
+//             ctx.translate(canvas.width / 2, canvas.height / 2);
+
+//             // Анімація: легке похитування сковорідки та підстрибування яєчні
+//             const tilt = Math.sin(t * 8) * 0.12;       // кут нахилу
+//             const bounce = Math.abs(Math.sin(t * 8)) * 8; // підстрибування
+
+//             ctx.rotate(tilt);
+
+//             // 1. Ручка сковорідки
+//             ctx.fillStyle = '#556666';
+//             ctx.fillRect(40, -10, 55, 18);
+
+//             // 2. Бортик сковорідки (темний)
+//             ctx.fillStyle = '#2d2d32';
+//             ctx.beginPath();
+//             ctx.arc(0, 0, 52, 0, Math.PI * 2);
+//             ctx.fill();
+
+//             // 3. Дно сковорідки (сіре)
+//             ctx.fillStyle = '#474750';
+//             ctx.beginPath();
+//             ctx.arc(0, 0, 46, 0, Math.PI * 2);
+//             ctx.fill();
+
+//             // 4. Яєчня (зміщується вгору-вниз при смаженні)
+//             ctx.save();
+//             ctx.translate(0, -bounce);
+
+//             // Білок
+//             ctx.fillStyle = '#f0f0f4';
+//             ctx.beginPath();
+//             ctx.arc(-8, -4, 22, 0, Math.PI * 2);
+//             ctx.arc(10, 6, 18, 0, Math.PI * 2);
+//             ctx.arc(-2, 12, 16, 0, Math.PI * 2);
+//             ctx.fill();
+
+//             // Жовток
+//             ctx.fillStyle = '#ffb300';
+//             ctx.beginPath();
+//             ctx.arc(0, 2, 12, 0, Math.PI * 2);
+//             ctx.fill();
+
+//             // Блік на жовтку
+//             ctx.fillStyle = '#ffffff';
+//             ctx.beginPath();
+//             ctx.arc(-3, -1, 3.5, 0, Math.PI * 2);
+//             ctx.fill();
+
+//             ctx.restore(); // кінець анімації яєчні
+//             ctx.restore(); // кінець сковорідки
+
+//             t += 0.03;
+//             animationId = requestAnimationFrame(drawFrame); // наступний кадр[cite: 2]
+//         }
+
+//         drawFrame();
+
+//         // Зупинка анімації при завершенні завантаження[cite: 3]
+//         return () => cancelAnimationFrame(animationId);
+//     }, []);
+
+//     return (
+//         <div style={{ textAlign: 'center', margin: '20px auto' }}>
+//             <canvas ref={canvasRef} width="220" height="150" />
+//             <p style={{
+//                 fontFamily: 'var(--font-heading)',
+//                 fontSize: '1.4rem',
+//                 color: 'var(--accent-primary)',
+//                 margin: '8px 0 0 0'
+//             }}>
+//                 Смажимо ідею для вечері...
+//             </p>
+//         </div>
+//     );
+// }
 
 
 
